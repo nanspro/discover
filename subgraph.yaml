@@ -4,9 +4,9 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: Contract
-    network: mainnet
+    network: ropsten
     source:
-      address: "0x5bCF2767F86f14eDd82053bfBfd5069F68C2C5F8"
+      address: "0x008db8b84547982e8F6677D38e9b9ea64F3ccB8B"
       abi: Contract
     mapping:
       kind: ethereum/events
@@ -14,26 +14,10 @@ dataSources:
       language: wasm/assemblyscript
       entities:
         - DAppMetadata
-        # - DAppCreated
-        # - Upvote
-        # - Downvote
-        # - Withdraw
-        # - MetadataUpdated
-        # - CeilingUpdated
       abis:
         - name: Contract
           file: ./abis/Contract.json
       eventHandlers:
         - event: DAppCreated(indexed bytes32,uint256)
           handler: handleDAppCreated
-        # - event: Upvote(indexed bytes32,uint256)
-          # handler: handleUpvote
-        # - event: Downvote(indexed bytes32,uint256)
-          # handler: handleDownvote
-        # - event: Withdraw(indexed bytes32,uint256)
-          # handler: handleWithdraw
-        # - event: MetadataUpdated(indexed bytes32)
-          # handler: handleMetadataUpdated
-        # - event: CeilingUpdated(uint256,uint256)
-          # handler: handleCeilingUpdated
       file: ./src/mapping.ts

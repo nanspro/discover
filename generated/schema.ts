@@ -42,15 +42,6 @@ export class DAppMetadata extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get ipfsHash(): string {
-    let value = this.get("ipfsHash");
-    return value.toString();
-  }
-
-  set ipfsHash(value: string) {
-    this.set("ipfsHash", Value.fromString(value));
-  }
-
   get hash(): Bytes {
     let value = this.get("hash");
     return value.toBytes();
