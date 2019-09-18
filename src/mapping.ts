@@ -1,10 +1,10 @@
 import {
   DAppCreated as DAppCreatedEvent,
-  Upvote as UpvoteEvent,
-  Downvote as DownvoteEvent,
-  Withdraw as WithdrawEvent,
-  MetadataUpdated as MetadataUpdatedEvent,
-  CeilingUpdated as CeilingUpdatedEvent,
+  // Upvote as UpvoteEvent,
+  // Downvote as DownvoteEvent,
+  // Withdraw as WithdrawEvent,
+  // MetadataUpdated as MetadataUpdatedEvent,
+  // CeilingUpdated as CeilingUpdatedEvent,
   Contract as DiscoverContract
 } from "../generated/Contract/Contract"
 import {
@@ -14,7 +14,7 @@ import {
   // Withdraw,
   // MetadataUpdated,
   // CeilingUpdated,
-  DAppMetadata
+  DappMeta
 } from "../generated/schema"
 
 import { 
@@ -32,10 +32,13 @@ import {
 import { loadFromIpfs } from "./ipfs";
 import { TransactionInfo, State } from "./transaction";
 
-function getIpfsHashFromBytes32(bytes32Hex: Bytes): string {
+import { encoder } from 'basex-encoder'
+
+function getIpfsHash(bytes32Hex: string): string {
   let hashHex = `1220${bytes32Hex.slice(2)}`
-  let hashBytes: ByteArray = ByteArray.fromHexString(hashHex)
-  let hashStr = hashBytes.toBase58()
+  let hashBytes = Buffer.from(hashHex, 'hex')
+  const base58 = encoder('123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz');
+  let hashStr = base58.encodeFromBuffer(hashBytes)
   return hashStr
 }
 
@@ -57,15 +60,17 @@ function getIpfsHashFromBytes32(bytes32Hex: Bytes): string {
 
 export function handleDAppCreated(event: DAppCreatedEvent): void {
   let contract = DiscoverContract.bind(event.address)
-  let entity = new DAppMetadata(
+  let entity = new DappMeta(
     event.transaction.hash.toHex() + "-" + event.logIndex.toString()
   )
   let id = event.params.id
   let count = contract.getDAppsCount()
   let dappIdx = contract.id2index(id)
   let dapp = contract.dapps(dappIdx)
-  let metadata = dapp.value2
-  let ipfsHash = getIpfsHashFromBytes32(metadata)
+  let metadata = dapp.value2 // bytes32 representation of ipfs Hash where all metadata is stored
+  log.info('Hows everything {} {} {} {}', [count.toHexString(), dappIdx.toHexString(), id.toHex(), metadata.toHexString()])
+  let ipfsHash = getIpfsHash(metadata.toHexString())
+  log.info("IPFS HASH: {}", [ipfsHash])
 
   let tx: TransactionInfo
   tx.blockNumber = event.block.number.toI32()
@@ -75,9 +80,10 @@ export function handleDAppCreated(event: DAppCreatedEvent): void {
   tx.state.ipfsReqs = 0
   
   let ipfsData = loadFromIpfs(ipfsHash, tx)
+  log.debug("TxXxxxxxxxxxx: {}", [tx.toString()])
   entity.ipfsHash = ipfsHash
   entity.hash = event.transaction.hash
-  
+  entity.save()  
 
   // entity.compressedMetadata = web3Utils.keccak256(
     // JSON.stringify(metadata),
@@ -86,7 +92,6 @@ export function handleDAppCreated(event: DAppCreatedEvent): void {
 
   // entity.id = event.params.id
   // entity.newEffectiveBalance = event.params.newEffectiveBalance
-  entity.save()
 }
 
 // export function handleUpvote(event: UpvoteEvent): void {

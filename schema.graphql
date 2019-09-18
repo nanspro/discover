@@ -1,4 +1,4 @@
-type DAppMetadata @entity {
+type DappMeta @entity {
   id: ID!
   ipfsHash: String!
   hash: Bytes!
