@@ -32,15 +32,6 @@ import {
 import { loadFromIpfs } from "./ipfs";
 import { TransactionInfo, State } from "./transaction";
 
-import { encoder } from 'basex-encoder'
-
-function getIpfsHash(bytes32Hex: string): string {
-  let hashHex = `1220${bytes32Hex.slice(2)}`
-  let hashBytes = Buffer.from(hashHex, 'hex')
-  const base58 = encoder('123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz');
-  let hashStr = base58.encodeFromBuffer(hashBytes)
-  return hashStr
-}
 
 // function getIpfsData(hash: string): TypedMap<string, JSONValue> | null {
 //   let data: TypedMap<string, JSONValue>
@@ -63,16 +54,27 @@ export function handleDAppCreated(event: DAppCreatedEvent): void {
   let entity = new DappMeta(
     event.transaction.hash.toHex() + "-" + event.logIndex.toString()
   )
+  
   let id = event.params.id
   let count = contract.getDAppsCount()
   let dappIdx = contract.id2index(id)
   let dapp = contract.dapps(dappIdx)
   let metadata = dapp.value2 // bytes32 representation of ipfs Hash where all metadata is stored
-  log.info('Hows everything {} {} {} {}', [count.toHexString(), dappIdx.toHexString(), id.toHex(), metadata.toHexString()])
-  let ipfsHash = getIpfsHash(metadata.toHexString())
+  
+  let bytes32toHex = metadata.toHexString()
+  let ipfsHashHex = '1220' + bytes32toHex.slice(2)
+  ipfsHashHex = '0x' + ipfsHashHex
+
+  log.info('Hows everything {} {} {} {} {}', [count.toHexString(), dappIdx.toHexString(), id.toHex(), bytes32toHex, ipfsHashHex])
+  
+  let ipfsHashBytes = Bytes.fromHexString(ipfsHashHex)
+  let ipfsHash = ipfsHashBytes.toBase58()
+  
   log.info("IPFS HASH: {}", [ipfsHash])
 
+  
   let tx: TransactionInfo
+  
   tx.blockNumber = event.block.number.toI32()
   tx.timestamp = event.block.timestamp.toI32()
   tx.from = event.transaction.from
@@ -80,7 +82,8 @@ export function handleDAppCreated(event: DAppCreatedEvent): void {
   tx.state.ipfsReqs = 0
   
   let ipfsData = loadFromIpfs(ipfsHash, tx)
-  log.debug("TxXxxxxxxxxxx: {}", [tx.toString()])
+  
+  log.debug("Transaction (Tx): {}", [tx.toString()])
   entity.ipfsHash = ipfsHash
   entity.hash = event.transaction.hash
   entity.save()  
