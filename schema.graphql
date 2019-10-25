@@ -1,71 +1,36 @@
 type DappMeta @entity {
   id: ID!
   ipfsHash: String!
-  hash: Bytes!
+  hash: String!
+  details: Detail! @derivedFrom(field: "identifier")
+  # email: String!
+  status: Status!
 }
-  # compressedMetadata: String
-  # details: Detail!
-  # hash: String!
-  # status:
-  # email: Status!
 
-# type Detail {
-#   name: String!
-#   uploader: String!
-#   url: String!
-#   description: String!
-#   category: DAppCategories!
-#   image: String!
-#   dateAdded: BigInt!
-# }
+type Detail @entity {
+  id: ID!
+  identifier: DappMeta!
+  name: String!
+  uploader: String!
+  url: String!
+  description: String!
+  category: DAppCategories!
+  image: String!
+  dateAdded: BigInt!
+}
 
-# enum Status {
-#   NEW
-#   APPROVED
-#   UPDATED
-# }
+enum Status {
+  NEW
+  APPROVED
+  UPDATED
+}
 
-# enum DAppCategories {
-#   EXCHANGES
-#   MARKETPLACES
-#   COLLECTIBLES
-#   GAMES
-#   SOCIAL_NETWORKS
-#   UTILITIES
-#   OTHER
-# }
-
-# type DAppCreated @entity {
-#   id: ID!
-#   id: Bytes! # bytes32
-#   newEffectiveBalance: BigInt! # uint256
-# }
-
-# type Upvote @entity {
-#   id: ID!
-#   id: Bytes! # bytes32
-#   newEffectiveBalance: BigInt! # uint256
-# }
-
-# type Downvote @entity {
-#   id: ID!
-#   id: Bytes! # bytes32
-#   newEffectiveBalance: BigInt! # uint256
-# }
-
-# type Withdraw @entity {
-#   id: ID!
-#   id: Bytes! # bytes32
-#   newEffectiveBalance: BigInt! # uint256
-# }
-
-# type MetadataUpdated @entity {
-#   id: ID!
-#   id: Bytes! # bytes32
-# }
-
-# type CeilingUpdated @entity {
-#   id: ID!
-#   oldCeiling: BigInt! # uint256
-#   newCeiling: BigInt! # uint256
-# }
+enum DAppCategories {
+  EXCHANGES
+  MARKETPLACES
+  COLLECTIBLES
+  GAMES
+  SOCIAL_NETWORKS
+  UTILITIES
+  OTHER
+}

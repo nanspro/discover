@@ -51,12 +51,133 @@ export class DappMeta extends Entity {
     this.set("ipfsHash", Value.fromString(value));
   }
 
-  get hash(): Bytes {
+  get hash(): string {
     let value = this.get("hash");
-    return value.toBytes();
+    return value.toString();
   }
 
-  set hash(value: Bytes) {
-    this.set("hash", Value.fromBytes(value));
+  set hash(value: string) {
+    this.set("hash", Value.fromString(value));
+  }
+
+  get details(): string {
+    let value = this.get("details");
+    return value.toString();
+  }
+
+  set details(value: string) {
+    this.set("details", Value.fromString(value));
+  }
+
+  get status(): string {
+    let value = this.get("status");
+    return value.toString();
+  }
+
+  set status(value: string) {
+    this.set("status", Value.fromString(value));
+  }
+}
+
+export class Detail extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save Detail entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save Detail entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("Detail", id.toString(), this);
+  }
+
+  static load(id: string): Detail | null {
+    return store.get("Detail", id) as Detail | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get identifier(): string {
+    let value = this.get("identifier");
+    return value.toString();
+  }
+
+  set identifier(value: string) {
+    this.set("identifier", Value.fromString(value));
+  }
+
+  get name(): string {
+    let value = this.get("name");
+    return value.toString();
+  }
+
+  set name(value: string) {
+    this.set("name", Value.fromString(value));
+  }
+
+  get uploader(): string {
+    let value = this.get("uploader");
+    return value.toString();
+  }
+
+  set uploader(value: string) {
+    this.set("uploader", Value.fromString(value));
+  }
+
+  get url(): string {
+    let value = this.get("url");
+    return value.toString();
+  }
+
+  set url(value: string) {
+    this.set("url", Value.fromString(value));
+  }
+
+  get description(): string {
+    let value = this.get("description");
+    return value.toString();
+  }
+
+  set description(value: string) {
+    this.set("description", Value.fromString(value));
+  }
+
+  get category(): string {
+    let value = this.get("category");
+    return value.toString();
+  }
+
+  set category(value: string) {
+    this.set("category", Value.fromString(value));
+  }
+
+  get image(): string {
+    let value = this.get("image");
+    return value.toString();
+  }
+
+  set image(value: string) {
+    this.set("image", Value.fromString(value));
+  }
+
+  get dateAdded(): BigInt {
+    let value = this.get("dateAdded");
+    return value.toBigInt();
+  }
+
+  set dateAdded(value: BigInt) {
+    this.set("dateAdded", Value.fromBigInt(value));
   }
 }

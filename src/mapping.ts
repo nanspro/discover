@@ -14,7 +14,8 @@ import {
   // Withdraw,
   // MetadataUpdated,
   // CeilingUpdated,
-  DappMeta
+  DappMeta,
+  Detail
 } from "../generated/schema"
 
 import { 
@@ -33,25 +34,13 @@ import { loadFromIpfs } from "./ipfs";
 import { TransactionInfo, State } from "./transaction";
 
 
-// function getIpfsData(hash: string): TypedMap<string, JSONValue> | null {
-//   let data: TypedMap<string, JSONValue>
-//   if (hash != null && hash.length > 0) {
-//     let dataBytes = (ipfs.cat(hash)) as Bytes
-//     if (dataBytes != null && dataBytes.toString().length > 0) {
-//       log.warning('DEBUG IPFS {}', [dataBytes.toString()])
-//       let jsonRet = json.fromBytes(dataBytes)
-//       // log.warning('DEBUG IPFS RS {}', [json.toString()])
-//       data = jsonRet.toObject()
-//     } else {
-//       log.warning('DEBUG IPFS SKIPPING {}', [hash])
-//     }
-//   }
-//   return data;
-// }
-
 export function handleDAppCreated(event: DAppCreatedEvent): void {
   let contract = DiscoverContract.bind(event.address)
   let entity = new DappMeta(
+    event.transaction.hash.toHex() + "-" + event.logIndex.toString()
+  )
+
+  let entity2 = new Detail(
     event.transaction.hash.toHex() + "-" + event.logIndex.toString()
   )
   
@@ -81,13 +70,27 @@ export function handleDAppCreated(event: DAppCreatedEvent): void {
   tx.hash = event.transaction.hash
   tx.state.ipfsReqs = 0
   
-  let ipfsData = loadFromIpfs(ipfsHash, tx)
-  
-  log.debug("Transaction (Tx): {}", [tx.toString()])
-  entity.ipfsHash = ipfsHash
-  entity.hash = event.transaction.hash
-  entity.save()  
+  if (ipfsHash != 'QmS6a72GnPvUCMwKKrVGE41yY8RYwVVoBTrEbW6XWDu1EY' && ipfsHash != 'QmfCbEDwZ7sVSzcmivp3WvKd9pcKHhmCXiFwFuuQJmhPhs') {
+    let ipfsData = loadFromIpfs(ipfsHash, tx)
 
+  log.debug("Transaction (Tx): {}", [tx.toString()])
+  log.debug("IPFS DATA is {}", [ipfsData.get("name").toString()])
+  
+  entity2.name = ipfsData.get("name").toString()
+  entity2.url = ipfsData.get("url").toString()
+  entity2.description = ipfsData.get("description").toString()
+  entity2.dateAdded = ipfsData.get("dateAdded").toBigInt()
+  entity2.category = ipfsData.get("category").toString()
+  entity2.uploader = ipfsData.get("uploader").toString()
+  entity2.image = ipfsData.get("image").toString()
+  entity2.identifier = event.transaction.hash.toHex() + "-" + event.logIndex.toString()
+  entity2.save()
+  
+  entity.ipfsHash = ipfsHash
+  entity.hash = event.transaction.hash.toHex()
+  entity.status = "NEW"
+  entity.save()
+  }
   // entity.compressedMetadata = web3Utils.keccak256(
     // JSON.stringify(metadata),
   // )
