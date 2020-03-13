@@ -1,19 +1,8 @@
 import {
   DAppCreated as DAppCreatedEvent,
-  // Upvote as UpvoteEvent,
-  // Downvote as DownvoteEvent,
-  // Withdraw as WithdrawEvent,
-  // MetadataUpdated as MetadataUpdatedEvent,
-  // CeilingUpdated as CeilingUpdatedEvent,
   Contract as DiscoverContract
 } from "../generated/Contract/Contract"
 import {
-  // DAppCreated,
-  // Upvote,
-  // Downvote,
-  // Withdraw,
-  // MetadataUpdated,
-  // CeilingUpdated,
   DappMeta,
   Detail
 } from "../generated/schema"
@@ -31,6 +20,7 @@ import {
   BigInt } from '@graphprotocol/graph-ts'
 
 import { loadFromIpfs } from "./ipfs";
+import { getNewHash } from "./oldToNewHash";
 import { TransactionInfo, State } from "./transaction";
 
 
@@ -69,12 +59,15 @@ export function handleDAppCreated(event: DAppCreatedEvent): void {
   tx.from = event.transaction.from
   tx.hash = event.transaction.hash
   tx.state.ipfsReqs = 0
+
+  ipfsHash = getNewHash(ipfsHash)
+
+  log.info("NEW IPFS HASH: {}", [ipfsHash])
   
-  if (ipfsHash != 'QmS6a72GnPvUCMwKKrVGE41yY8RYwVVoBTrEbW6XWDu1EY' && ipfsHash != 'QmfCbEDwZ7sVSzcmivp3WvKd9pcKHhmCXiFwFuuQJmhPhs') {
-    let ipfsData = loadFromIpfs(ipfsHash, tx)
+  let ipfsData = loadFromIpfs(ipfsHash, tx)
 
   log.debug("Transaction (Tx): {}", [tx.toString()])
-  log.debug("IPFS DATA is {}", [ipfsData.get("name").toString()])
+  log.info("IPFS DATA is {}", [ipfsData.get("name").toString()])
   
   entity2.name = ipfsData.get("name").toString()
   entity2.url = ipfsData.get("url").toString()
@@ -90,14 +83,6 @@ export function handleDAppCreated(event: DAppCreatedEvent): void {
   entity.hash = event.transaction.hash.toHex()
   entity.status = "NEW"
   entity.save()
-  }
-  // entity.compressedMetadata = web3Utils.keccak256(
-    // JSON.stringify(metadata),
-  // )
-  // entity.status = "NEW"
-
-  // entity.id = event.params.id
-  // entity.newEffectiveBalance = event.params.newEffectiveBalance
 }
 
 // export function handleUpvote(event: UpvoteEvent): void {
@@ -106,40 +91,5 @@ export function handleDAppCreated(event: DAppCreatedEvent): void {
 //   )
 //   entity.id = event.params.id
 //   entity.newEffectiveBalance = event.params.newEffectiveBalance
-//   entity.save()
-// }
-
-// export function handleDownvote(event: DownvoteEvent): void {
-//   let entity = new Downvote(
-//     event.transaction.hash.toHex() + "-" + event.logIndex.toString()
-//   )
-//   entity.id = event.params.id
-//   entity.newEffectiveBalance = event.params.newEffectiveBalance
-//   entity.save()
-// }
-
-// export function handleWithdraw(event: WithdrawEvent): void {
-//   let entity = new Withdraw(
-//     event.transaction.hash.toHex() + "-" + event.logIndex.toString()
-//   )
-//   entity.id = event.params.id
-//   entity.newEffectiveBalance = event.params.newEffectiveBalance
-//   entity.save()
-// }
-
-// export function handleMetadataUpdated(event: MetadataUpdatedEvent): void {
-//   let entity = new MetadataUpdated(
-//     event.transaction.hash.toHex() + "-" + event.logIndex.toString()
-//   )
-//   entity.id = event.params.id
-//   entity.save()
-// }
-
-// export function handleCeilingUpdated(event: CeilingUpdatedEvent): void {
-//   let entity = new CeilingUpdated(
-//     event.transaction.hash.toHex() + "-" + event.logIndex.toString()
-//   )
-//   entity.oldCeiling = event.params.oldCeiling
-//   entity.newCeiling = event.params.newCeiling
 //   entity.save()
 // }

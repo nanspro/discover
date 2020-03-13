@@ -1,0 +1,14 @@
+import json
+
+code = "ifStatements.txt"
+text = ''
+with open('hashes.json') as file:
+    data = json.load(file)
+    # print(len(data))
+    for key in data:
+        print(key)
+        print(data[key])
+        text = text + 'if (ipfsHash == "' + key + '")' + '\n' + '\t' + 'ipfsHash = "' + data[key] + '"' + '\n' + '\n'
+    
+    with open(code, 'w') as f:
+        f.write(text)        
